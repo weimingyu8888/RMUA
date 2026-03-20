@@ -319,95 +319,88 @@ airsim_ros::RotorPWM Controller::computePWM(
 
 void Controller::publish_ctrl(const Controller_Output_t& u, const ros::Time& stamp, bool is_init,Command_Data_t& cmd_data,float x,float y,float z,float w)
 {
-
-	static int cnt = 0;
+    static int cnt = 0;
     Eigen::Quaterniond q(w,x,y,z);
-	Eigen::Matrix3d rotationMatrix=q.toRotationMatrix();
-    Eigen::Vector3d originalPoint(cmd_data.v(0),cmd_data.v(1),cmd_data.v(2));
-	Eigen::Matrix3d tran;
-	tran <<
-      1.0, 0.0, 0.0,
-      0.0, -1.0, 0.0,
-      0.0, 0.0, -1.0
-		;
+    Eigen::Matrix3d rotationMatrix = q.toRotationMatrix();
+    Eigen::Vector3d originalPoint(cmd_data.v(0), cmd_data.v(1), cmd_data.v(2));
+    Eigen::Matrix3d tran;
+    tran <<
+        1.0, 0.0, 0.0,
+        0.0, -1.0, 0.0,
+        0.0, 0.0, -1.0;
 
     rotationMatrix = tran * rotationMatrix * tran;
     Eigen::Vector3d rotatedPoint = rotationMatrix.inverse() * originalPoint;
-if (cnt < 100)
-	{
-		std::cout << "here" << std::endl;
-		airsim_ros::RotorPWM pwm;
-		pwm.rotorPWM0 = 0.178087130188 + 0.03;
-		pwm.rotorPWM1 = 0.178087130188 + 0.03;
-		pwm.rotorPWM2 = 0.178087130188 + 0.03;
-		pwm.rotorPWM3 = 0.178087130188 + 0.03;
-		ctrl_PWM_pub.publish(pwm);
-		cnt++;
-		return;
-	}
-	else if (cnt >= 100&& cnt < 180)
-	{
-		std::cout << "here" << std::endl;
-		airsim_ros::RotorPWM pwm;
-		pwm.rotorPWM0 = 0.178087130188 - 0.03;
-		pwm.rotorPWM1 = 0.178087130188 - 0.03;
-		pwm.rotorPWM2 = 0.178087130188 - 0.03;
-		pwm.rotorPWM3 = 0.178087130188 - 0.03;
-		ctrl_PWM_pub.publish(pwm);
-		cnt++;
-		return;
-	}
-	else if (!is_init)
-	{
-		airsim_ros::RotorPWM pwm;
-		pwm.rotorPWM0 = 0.178087130188;
-		pwm.rotorPWM1 = 0.178087130188;
-		pwm.rotorPWM2 = 0.178087130188;
-		pwm.rotorPWM3 = 0.178087130188;
-		ctrl_PWM_pub.publish(pwm);
-		return;
-	}	
-	float yaw = q.toRotationMatrix().eulerAngles(2,1,0)[0];
-	float pitch = q.toRotationMatrix().eulerAngles(2,1,0)[1];
-	// msg.header.stamp = stamp;
-	// msg.header.frame_id = std::string("FCU");
-	// msg.body_rate.x = u.roll_rate;
-	// msg.body_rate.y = u.pitch_rate;
-	// msg.body_rate.z = u.yaw_rate;
-	// msg.thrust = u.thrust;
-    //std::cout<<"yaw"<<yaw<<std::endl;
-	//std::cout<<"pitch"<<pitch<<std::endl;
-  // ctrl_FCU_pub.publish(msg);
 
-	Eigen::Vector3d torque;
-	torque << u.roll_rate, u.pitch_rate, u.yaw_rate;
+    if (cnt < 100)
+    {
+        std::cout << "here" << std::endl;
+        airsim_ros::RotorPWM pwm;
+        pwm.rotorPWM0 = 0.178087130188 + 0.03;
+        pwm.rotorPWM1 = 0.178087130188 + 0.03;
+        pwm.rotorPWM2 = 0.178087130188 + 0.03;
+        pwm.rotorPWM3 = 0.178087130188 + 0.03;
+        ctrl_PWM_pub.publish(pwm);
+        cnt++;
+        return;
+    }
+    else if (cnt >= 100 && cnt < 180)
+    {
+        std::cout << "here" << std::endl;
+        airsim_ros::RotorPWM pwm;
+        pwm.rotorPWM0 = 0.178087130188 - 0.03;
+        pwm.rotorPWM1 = 0.178087130188 - 0.03;
+        pwm.rotorPWM2 = 0.178087130188 - 0.03;
+        pwm.rotorPWM3 = 0.178087130188 - 0.03;
+        ctrl_PWM_pub.publish(pwm);
+        cnt++;
+        return;
+    }
+    else if (!is_init)
+    {
+        airsim_ros::RotorPWM pwm;
+        pwm.rotorPWM0 = 0.178087130188;
+        pwm.rotorPWM1 = 0.178087130188;
+        pwm.rotorPWM2 = 0.178087130188;
+        pwm.rotorPWM3 = 0.178087130188;
+        ctrl_PWM_pub.publish(pwm);
+        return;
+    }
 
-	airsim_ros::RotorPWM pwm;
-	airsim_ros::VelCmd vel_cmd;
-	pwm = computePWM(u.thrust, torque);
-	
-    vel_cmd.twist.linear.x =  (-cmd_data.v(0)*cos(yaw)+cmd_data.v(1)*sin(yaw))*(-cos(pitch))-cmd_data.v(2)*sin(pitch);
-	vel_cmd.twist.linear.y = (cmd_data.v(1)*cos(yaw)+cmd_data.v(0)*sin(yaw));
-	// std::cout<<"vel_cmd.twist.linear.x"<<vel_cmd.twist.linear.x<<std::endl;
-	// std::cout<<"vel_cmd.twist.linear.y"<<vel_cmd.twist.linear.y<<std::endl;
-	vel_cmd.twist.linear.z = cmd_data.v(2)*cos(pitch);//(-cmd_data.v(0)*cos(yaw)+cmd_data.v(1)*sin(yaw))*cos(pitch);
-    vel_cmd.twist.linear.x = rotatedPoint(0)*1.5;
-	vel_cmd.twist.linear.y = -rotatedPoint(1)*1.5;
-	vel_cmd.twist.linear.z = -rotatedPoint(2)*1.5;	
-	// if (cnt < 100)
-	// {
-	// 	vel_cmd.twist.linear.z = -0.8;
+    float yaw = q.toRotationMatrix().eulerAngles(2,1,0)[0];
+    float pitch = q.toRotationMatrix().eulerAngles(2,1,0)[1];
 
+    Eigen::Vector3d torque;
+    torque << u.roll_rate, u.pitch_rate, u.yaw_rate;
 
-	//     vel_pub.publish(vel_cmd);
-	// 	cnt++;
-	// }
-	ctrl_PWM_pub.publish(pwm);
-		//std::cout<<"vel_cmd.twist.linear.z"<<vel_cmd.twist.linear.z<<std::endl;
+    airsim_ros::RotorPWM pwm;
+    airsim_ros::VelCmd vel_cmd;
+    pwm = computePWM(u.thrust, torque);
 
-	//vel_pub.publish(vel_cmd);
+    // 原始速度计算
+    double vx2 = rotatedPoint(0)*1.5;
+    double vy2 = -rotatedPoint(1)*1.5;
+    double vz2 = -rotatedPoint(2)*1.5;
 
+    // 🚀 最大速度限制
+    const double MAX_V = 1.0;  // m/s, 可调整
+    vx2 = std::max(std::min(vx2, MAX_V), -MAX_V);
+    vy2 = std::max(std::min(vy2, MAX_V), -MAX_V);
+    vz2 = std::max(std::min(vz2, MAX_V), -MAX_V);
+
+    // 设置 VelCmd
+    vel_cmd.header.stamp = ros::Time::now();
+    vel_cmd.vx = vx2;
+    vel_cmd.vy = vy2;
+    vel_cmd.vz = vz2;
+    vel_cmd.yawRate = 0.0;
+    vel_cmd.va = 1;
+    vel_cmd.stop_flag = 0;
+
+    ctrl_PWM_pub.publish(pwm);
+    // vel_pub.publish(vel_cmd); // 如果想同时发速度可以取消注释
 }
+
 void Controller::pose_cb(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
     x=msg->pose.orientation.x;

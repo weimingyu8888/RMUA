@@ -164,10 +164,10 @@ std::pair<double, double> calculate_yaw(double t_cur, Eigen::Vector3d &pos, doub
 void publish_cmd(Vector3d p, Vector3d v, Vector3d a, Vector3d j, double y, double yd)
 {
   // Publish velocity command
-  cmd.twist.linear.x = v(0);  // x方向线速度(m/s)
-  cmd.twist.linear.y = -v(1);  // y方向线速度(m/s)
-  cmd.twist.linear.z = -v(2);  // z方向线速度(m/s)
-  cmd.twist.angular.z = -yd;   // z方向角速度(yaw, deg)
+ cmd.vx = v(0);
+cmd.vy = -v(1);
+cmd.vz = -v(2);
+cmd.yawRate = -yd;
   pos_cmd_pub.publish(cmd);
 
   // airsim_ros::RotorPWM msg;

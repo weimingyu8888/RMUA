@@ -23,10 +23,10 @@ BasicDev::BasicDev(ros::NodeHandle *nh)
     land.request.waitOnLastTask = 1;
 
     // 使用publisher发布速度指令需要定义 Velcmd , 并赋予相应的值后，将他publish（）出去
-    velcmd.twist.angular.z = 0;//z方向角速度(yaw, deg)
-    velcmd.twist.linear.x = 0; //x方向线速度(m/s)
-    velcmd.twist.linear.y = 0;//y方向线速度(m/s)
-    velcmd.twist.linear.z = 0; //z方向线速度(m/s)
+   velcmd.yawRate = 0;  // 原来: velcmd.twist.angular.z = 0;
+velcmd.vx = 0;        // 原来: velcmd.twist.linear.x = 0;
+velcmd.vy = 0;        // 原来: velcmd.twist.linear.y = 0;
+velcmd.vz = 0;        // 原来: velcmd.twist.linear.z = 0;
 
     pwm_cmd.rotorPWM0 = 0.1;
     pwm_cmd.rotorPWM1 = 0.1;

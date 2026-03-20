@@ -99,6 +99,14 @@ public:
     void timeCB(const ros::TimerEvent& event);
     std::vector<std::vector<geometry_msgs::Point>> paths;
     ros::Timer timer;
+
+    geometry_msgs::Point hover_point;
+    bool hover_point_set = false;
+    bool reached_hover_point = false;
+    bool hovering = false;
+    ros::Time hover_start_time;
+    double hover_duration = 5.0;
+
     ~PathSender();
 };
 

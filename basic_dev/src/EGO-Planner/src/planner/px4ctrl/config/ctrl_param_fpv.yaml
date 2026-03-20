@@ -1,10 +1,10 @@
 mass        : 0.91
 gra         : 9.81
-# hov_percent : 0.148406   # Thrust percentage in Stabilize/Arco mode
-hov_percent : 0.00446
-# full_thrust : 66.102448   # Real net thrust(unit:N) in 100% thrust percentage
-full_thrust: 1979.86
-ctrl_rate   : 70.0
+hov_percent : 0.148406   # Thrust percentage in Stabilize/Arco mode
+#hov_percent : 0.00446
+full_thrust : 66.102448   # Real net thrust(unit:N) in 100% thrust percentage
+#full_thrust: 1979.86
+ctrl_rate   : 100.0
 
 pxy_error_max: 0.6
 vxy_error_max: 1.0
@@ -16,7 +16,7 @@ use_yaw_rate_ctrl: false
 perform_aerodynamics_compensation: false
 
 hover:
-    use_hov_percent_kf: false
+    use_hov_percent_kf: true
     percent_lower_limit: 0.00
     percent_higher_limit: 100000
 
@@ -24,9 +24,9 @@ gain:
     track:
         Kp_gain: 1.5
         thresh: 0.1
-        Kp0: 1.8 #1.5
-        Kp1: 1.8 #5
-        Kp2: 2.2
+        Kp0: 1.0 #1.5
+        Kp1: 1.0 #5
+        Kp2: 1.2
         Kpd0: 0.0
         Kpd1: 0.0
         Kpd2: 0.0
@@ -39,14 +39,14 @@ gain:
         Kvd0: 0.2
         Kvd1: 0.2
         Kvd2: 0.15
-        Ka0: 1.0
+        Ka0: 0.8 #1.0
         Ka1: 1.0
         Ka2: 1.2
         Kyaw: 5.0 # 15.0
-        Krp: 10.0 #25
-        Kdrp: 0.5 #25
+        Krp: 6.0 #25 #10.0
+        Kdrp: 0.2 #25 #0.5
         Kdyaw: 0.5 #25
-        Kyawd: 10.0 
+        Kyawd: 5.0 #10.0
         Krpd: 12.0
 
 msg_timeout:
