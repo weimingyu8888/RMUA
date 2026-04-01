@@ -23,18 +23,18 @@
 #include <boost/thread/thread.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <pcl_conversions/pcl_conversions.h>
-#include <geometry_msgs/Point.h> // Include the necessary header for geometry_msgs
+#include <geometry_msgs/Point.h>
 #include <path_sender/WayPoints.h>
-#endif
 
 class PathSender
 {
 private:
+    // ================= 固定点（完全保留你的） =================
     cv::Point3f station_[13] = {
         {0.0, 0.0, 0.0},
         {0, 0, 0},
         {143, -286, 8},
-        {547, -518, 30},
+        {552, -518, 33},
         {1349, 103, 9.8},
         {1176, 424, 78},
         {783, 675, 5},
@@ -46,7 +46,7 @@ private:
         {263, -399, -0.2}
     };
 
-      cv::Point3f Transit_hub_[13] = {
+    cv::Point3f Transit_hub_[13] = {
         {0, 0, 0},
         {650.39, 75.15, 136.33},
         {665.5, 44.8, 136.33},
@@ -61,11 +61,12 @@ private:
         {706.9, 47, 163.9},
         {665.5, -44.8, 163.9}
     };
-          cv::Point3f end_point_[13] = {
+
+    cv::Point3f end_point_[13] = {
         {0, 0, 0},
         {-13.5671, 1.03407e-05, 2.7},
         {129.405, -287.628, 10.8939},
-        {536.148, -525.205, 32.0722},
+        {543.648, -522.705, 32.8722},
         {1363.09, 102.74, 10.20006},
         {1189.11, 424.908, 80.1408},
         {794.359, 682.403, 5.89},
@@ -77,40 +78,48 @@ private:
         {260.547, -414.272, 2.46838}
     };
 
-
-
 public:
-    ros::Subscriber initial_pose_suber, end_pose_suber, gps_pose_suber; // gps数据
+    // 当前无人机位置（用于计算距离/悬停）
+geometry_msgs::PoseStamped current_pose;
+    // ================= ROS =================
+    ros::Subscriber initial_pose_suber, end_pose_suber, gps_pose_suber;
+    ros::Publisher waypoint_publisher, edited_gps_publisher;
+    ros::Timer timer;
+
+    // ================= 回调 =================
     void initial_pose_cb(const geometry_msgs::PoseStamped::ConstPtr& msg);
     void end_pose_cb(const geometry_msgs::PoseStamped::ConstPtr& msg);
     void gps_pose_cb(const geometry_msgs::PoseStamped::ConstPtr& msg);
-    void POintSet();
-    ros::Publisher waypoint_publisher, edited_gps_publisher;
+    void timeCB(const ros::TimerEvent& event);
+
+    // ================= 数据 =================
     geometry_msgs::Point station[13];
     geometry_msgs::Point Transit_hub[13];
     geometry_msgs::Point end_point[13];
+
+    std::vector<std::vector<geometry_msgs::Point>> paths;
+    std::vector<geometry_msgs::Point> path;
+
+    int initial_num, end_num;
     bool initial_num_get = false;
     bool end_num_get = false;
     bool path_get  = false;
 
-    int initial_num, end_num;
-    std::vector<geometry_msgs::Point> path;
-    PathSender(ros::NodeHandle *nh);
-    void timeCB(const ros::TimerEvent& event);
-    std::vector<std::vector<geometry_msgs::Point>> paths;
-    ros::Timer timer;
+    // ================= ⭐⭐⭐ 只新增这些（最小改动） =================
 
-    geometry_msgs::Point hover_point;
-    bool hover_point_set = false;
-    bool reached_hover_point = false;
-    bool hovering = false;
+    int stage = 1;   // 当前阶段
+
+    bool hovering = false;   // 是否悬停
     ros::Time hover_start_time;
-    double hover_duration = 5.0;
+    double hover_duration = 3.0;
 
+    std::vector<int> stage_targets = {3,5};  // 目标点（路线3）
+
+    // ================= 工具 =================
+    void POintSet();
+
+    PathSender(ros::NodeHandle *nh);
     ~PathSender();
 };
 
-
-
-
-
+#endif

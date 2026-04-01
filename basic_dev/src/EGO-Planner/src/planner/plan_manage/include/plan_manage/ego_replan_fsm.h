@@ -39,6 +39,7 @@ namespace ego_planner
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   private:
+    double last_waypoint_x_ = -1; 
     /* ---------- flag ---------- */
     enum FSM_EXEC_STATE
     {

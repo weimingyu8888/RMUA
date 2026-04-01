@@ -60,6 +60,7 @@
         <param name="tf45" value="false"/>
         <param name="drone_id" value="$(arg drone_id)"/>
     </node>
+    <!--
     <node pkg="local_sensing_node" type="pcl_render_node" name="drone_$(arg drone_id)_pcl_render_node" output="screen">
         <rosparam command="load" file="$(find local_sensing_node)/params/camera.yaml" />
         <param name="sensing_horizon" value="20.0" />
@@ -72,4 +73,5 @@
         <remap from="~odometry" to="/drone_$(arg drone_id)_$(arg odometry_topic)"/>
         <remap from="~pcl_render_node/cloud" to="/drone_$(arg drone_id)_pcl_render_node/cloud"/>
     </node>
+    -->
 </launch>
